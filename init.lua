@@ -46,45 +46,48 @@ end
 vim.opt.rtp:prepend(lazypath)
 require("lazy").setup({
 	{
-		"Mofiqul/vscode.nvim",
+		"folke/tokyonight.nvim",
+		lazy = false,
+		priority = 1000,
+		opts = {},
+
 		config = function()
-			vim.o.background = "dark"
-			-- For light theme
-			--vim.o.background = "light"
-
-			local c = require("vscode.colors").get_colors()
-			require("vscode").setup({
-				-- Alternatively set style in setup
-				-- style = 'light'
-
-				-- Enable transparent background
-				transparent = true,
-
-				-- Enable italic comment
-				italic_comments = true,
-
-				-- Disable nvim-tree background color
-				disable_nvimtree_bg = true,
-
-				-- Override colors (see ./lua/vscode/colors.lua)
-				color_overrides = {
-					vscLineNumber = "#FFFFFF",
+			require("tokyonight").setup({
+				-- your configuration comes here
+				-- or leave it empty to use the default settings
+				style = "night", -- The theme comes in three styles, `storm`, `moon`, a darker variant `night` and `day`
+				light_style = "day", -- The theme is used when the background is set to light
+				transparent = false, -- Enable this to disable setting the background color
+				terminal_colors = true, -- Configure the colors used when opening a `:terminal` in [Neovim](https://github.com/neovim/neovim)
+				styles = {
+					-- Style to be applied to different syntax groups
+					-- Value is any valid attr-list value for `:help nvim_set_hl`
+					comments = { italic = true },
+					keywords = { italic = true },
+					functions = {},
+					variables = {},
+					-- Background styles. Can be "dark", "transparent" or "normal"
+					sidebars = "dark", -- style for sidebars, see below
+					floats = "dark", -- style for floating windows
 				},
+				sidebars = { "qf", "help" }, -- Set a darker background on sidebar-like windows. For example: `["qf", "vista_kind", "terminal", "packer"]`
+				day_brightness = 0.3, -- Adjusts the brightness of the colors of the **Day** style. Number between 0 and 1, from dull to vibrant colors
+				hide_inactive_statusline = false, -- Enabling this option, will hide inactive statuslines and replace them with a thin border instead. Should work with the standard **StatusLine** and **LuaLine**.
+				dim_inactive = false, -- dims inactive windows
+				lualine_bold = false, -- When `true`, section headers in the lualine theme will be bold
 
-				-- Override highlight groups (see ./lua/vscode/theme.lua)
-				group_overrides = {
-					-- this supports the same val table as vim.api.nvim_set_hl
-					-- use colors from this colorscheme by requiring vscode.colors!
-					Cursor = { fg = c.vscDarkBlue, bg = c.vscLightGreen, bold = true },
-				},
+				--- You can override specific color groups to use other groups or a hex color
+				--- function will be called with a ColorScheme table
+				---@param colors ColorScheme
+				on_colors = function(colors) end,
+
+				--- You can override specific highlights to use other groups or a hex color
+				--- function will be called with a Highlights and ColorScheme table
+				---@param highlights Highlights
+				---@param colors ColorScheme
+				on_highlights = function(highlights, colors) end,
 			})
-			require("vscode").load()
 		end,
-	},
-
-	{
-		--	"RRethy/nvim-base16",
-		--	lazy = true,
 	},
 	{
 		cmd = "Telescope",
@@ -258,10 +261,28 @@ require("lazy").setup({
 			})
 		end,
 	},
+	{
+		"romgrk/barbar.nvim",
+		dependencies = {
+			"lewis6991/gitsigns.nvim", -- OPTIONAL: for git status
+			"nvim-tree/nvim-web-devicons", -- OPTIONAL: for file icons
+		},
+		init = function()
+			vim.g.barbar_auto_setup = false
+		end,
+		opts = {
+			-- lazy.nvim will automatically call setup for you. put your options here, anything missing will use the default:
+			-- animation = true,
+			-- insert_at_start = true,
+			-- …etc.
+		},
+		version = "^1.0.0", -- optional: only update when a new 1.x version is released
+	},
 })
 
 -- color
 --vim.cmd.colorscheme("base16-tender")
+vim.cmd([[colorscheme tokyonight]])
 -- lsp
 
 -- Global mappings.
@@ -315,7 +336,7 @@ require("lspconfig").pyright.setup({
 	capabilities = capabilities,
 })
 
-require("lspconfig").clangd.setup({})
+--require("lspconfig").clangd.setup({})
 require("lspconfig").cmake.setup({})
 
 vim.api.nvim_create_autocmd("LspAttach", {
